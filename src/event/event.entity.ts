@@ -19,12 +19,12 @@ export class Event {
   @Column()
   location: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
   start_date: Date;
-  
-  @Column({ type: 'timestamp' })
+
+  @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
   end_date: Date;
-  
+
   @Column()
   is_public: boolean;
 

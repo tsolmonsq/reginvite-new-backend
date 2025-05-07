@@ -11,9 +11,11 @@ import { Form } from 'src/form/form.entity';
 import { FormField } from 'src/form-field/form-field.entity';
 import { FormModule } from 'src/form/form.module';
 import { FormFieldModule } from 'src/form-field/form-field.module';
+import { UserModule } from 'src/user/user.module';
+import { User } from 'src/user/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, Template, Invitation, Form, FormField]), TemplateModule, FormModule, FormFieldModule],
+  imports: [TypeOrmModule.forFeature([Event, Template, Invitation, Form, FormField, User]), TemplateModule, FormModule, FormFieldModule, UserModule],
   providers: [EventService, PaginationService],
   controllers: [EventController],
 })
