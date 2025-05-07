@@ -34,17 +34,8 @@ export class EventService {
     await queryRunner.startTransaction();
   
     try {
-      const [year, month, day] = createEventDto.date.split('/');
-      const [startHour, startMinute] = createEventDto.start_time.split(':');
-      const [endHour, endMinute] = createEventDto.end_time.split(':');
-  
-      const startDate = new Date(`${year}-${month}-${day}T${startHour}:${startMinute}:00`);
-      const endDate = new Date(`${year}-${month}-${day}T${endHour}:${endMinute}:00`);
-  
       const event = this.eventRepository.create({
-        ...createEventDto,
-        start_date: startDate,
-        end_date: endDate,
+        ...createEventDto
       });
   
       const savedEvent = await queryRunner.manager.save(event);
@@ -78,7 +69,7 @@ export class EventService {
         type: 'public',
         is_open: true,
         max_guests: 100, 
-        close_at: new Date(endDate.getTime() - 60 * 60 * 1000), 
+        close_at: createEventDto.end_date, 
         event: savedEvent,
       });
   
@@ -100,7 +91,7 @@ export class EventService {
         type: 'rsvp',
         is_open: false,
         max_guests: 0,
-        close_at: endDate,
+        close_at: createEventDto.end_date,
         event: savedEvent,
       });
   

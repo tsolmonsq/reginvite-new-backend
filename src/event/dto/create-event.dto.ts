@@ -18,15 +18,11 @@ export class CreateEventDto {
 
   @ApiProperty()
   @IsString()
-  date: string; // format: YYYY/MM/DD
+  start_date: string;
 
   @ApiProperty()
   @IsString()
-  start_time: string; // format: HH:mm
-
-  @ApiProperty()
-  @IsString()
-  end_time: string; // format: HH:mm
+  end_date: string; 
 
   @ApiProperty()
   @IsBoolean()
