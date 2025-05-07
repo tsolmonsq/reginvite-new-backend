@@ -13,10 +13,11 @@ import { FormModule } from 'src/form/form.module';
 import { FormFieldModule } from 'src/form-field/form-field.module';
 import { UserModule } from 'src/user/user.module';
 import { User } from 'src/user/user.entity';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Event, Template, Invitation, Form, FormField, User]), TemplateModule, FormModule, FormFieldModule, UserModule],
-  providers: [EventService, PaginationService],
+  providers: [EventService, PaginationService, UserService],
   controllers: [EventController],
 })
 export class EventModule {}

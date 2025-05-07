@@ -28,14 +28,15 @@ export class EventService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createEvent(createEventDto: CreateEventDto): Promise<Event> {
+  async createEvent(createEventDto: CreateEventDto, userId: number): Promise<Event> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
   
     try {
       const event = this.eventRepository.create({
-        ...createEventDto
+        ...createEventDto,
+        user: { id: userId }, 
       });
   
       const savedEvent = await queryRunner.manager.save(event);
@@ -107,31 +108,36 @@ export class EventService {
     }
   }  
   
-  async getPublicEvents(dateFilter?: string, category?: EventCategory, search?: string, page: number = 1, limit: number = 10): Promise<PaginationDto<Event>> {
+  async getPublicEvents(
+    dateFilter?: string,
+    category?: EventCategory,
+    search?: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<PaginationDto<Event>> {
     try {
       const query = this.eventRepository.createQueryBuilder('event');
+      
       query.andWhere('event.is_public = true');
 
       this.applyFilters(query, dateFilter, category, search);
-
       this.applyPagination(query, page, limit);
-
+  
       const [events, total] = await query.getManyAndCount();
       const totalPages = this.calculateTotalPages(total, limit);
-
+  
       return new PaginationDto(events, total, totalPages, page, limit);
     } catch (error) {
       throw new InternalServerErrorException('Failed to retrieve events', error.message);
     }
   }
-
+  
   async getPrivateEvents(userId: number, dateFilter?: string, category?: EventCategory, search?: string, page: number = 1, limit: number = 10): Promise<PaginationDto<Event>> {
     try {
       const query = this.eventRepository.createQueryBuilder('event');
-      query.andWhere('event.is_public = false AND event.user_id = :userId', { userId });
+      query.andWhere('event.user_id = :userId', { userId });
 
       this.applyFilters(query, dateFilter, category, search);
-
       this.applyPagination(query, page, limit);
 
       const [events, total] = await query.getManyAndCount();

@@ -7,21 +7,28 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@ne
 import { EventCategory } from './event-category.enum';
 import { PaginationDto } from 'src/common/ dto/pagination.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UserService } from 'src/user/user.service';
 
 @ApiTags('Event')
 @Controller('events')
 export class EventController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    private readonly eventService: EventService, 
+    private readonly userService: UserService
+  ) {}
+  
 
   @Post()
-  async createEvent(@Body() createEventDto: CreateEventDto): Promise<Event> {
-    return this.eventService.createEvent(createEventDto);
+  @UseGuards(JwtAuthGuard)
+  async createEvent(@Body() createEventDto: CreateEventDto, @Req() req: any) {
+    const userId = req.user.id;
+    const organizer = await this.userService.findByUserId(userId);
+    return this.eventService.createEvent(createEventDto, organizer.id);
   }
 
   @Get('/private')
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
-  @ApiResponse({ status: 200, description: 'List of private events with pagination metadata' })
   @ApiQuery({ name: 'dateFilter', required: false, type: String, description: 'Filter by date (today, tomorrow, this_week, this_month)' })
   @ApiQuery({ name: 'category', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
@@ -47,6 +54,7 @@ export class EventController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async getPublicEvents(
+    @Req() request: any,
     @Query('dateFilter') dateFilter?: string,
     @Query('category') category?: EventCategory,
     @Query('search') search?: string,
