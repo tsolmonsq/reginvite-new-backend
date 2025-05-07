@@ -18,7 +18,7 @@ export class EventController {
   @ApiResponse({ status: 201, description: 'Event created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async createEvent(@Body() createEventDto: CreateEventDto): Promise<Event> {
-    console.log("<<<yooo", createEventDto)
+    console.log("<<<yooo", createEventDto.name)
     return this.eventService.createEvent(createEventDto);
   }
 
