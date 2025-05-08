@@ -106,11 +106,9 @@ export class FormService {
     if (form.total_registrations >= form.max_guests) {
       throw new BadRequestException('Бүртгүүлэх зочдын хязгаар хүрсэн байна.');
     }
-  
-    // Map<fieldId, value> үүсгэн responses-ийг шүүнэ
+
     const responseMap = new Map(dto.responses.map(r => [r.fieldId, r.value]));
   
-    // field.label-ийг ашиглан guest-ийн үндсэн утгуудыг тодорхойлно
     const getValueByLabel = (label: string): string => {
       const field = form.formFields.find(f => f.label === label);
       return field ? responseMap.get(field.id) || '' : '';
@@ -128,8 +126,7 @@ export class FormService {
     });
   
     const savedGuest = await this.guestRepository.save(guest);
-  
-    // Responses entity-г бүрдүүлнэ
+
     const fieldIds = dto.responses.map((r) => r.fieldId);
     const fields = await this.formRepository.manager.findBy(FormField, { id: In(fieldIds) });
   
@@ -289,4 +286,22 @@ export class FormService {
     const totalPages = Math.ceil(total / limit);
     return new PaginationDto(items, total, totalPages, page, limit);
   }  
+
+  async getPublicFormRegistrationsCount(eventId: number): Promise<string> {
+    const form = await this.formRepository.findOne({
+      where: { event: { id: eventId }, type: 'public' },
+    });
+  
+    if (!form) {
+      throw new Error('Public form not found for event ID ' + eventId);
+    }
+    
+    const registrationsCount = await this.guestRepository.count({
+      where: { event: { id: eventId }, status: 'By form' },
+    });
+  
+    const maxGuests = form.max_guests;
+  
+    return `${registrationsCount} / ${maxGuests}`;
+  }
 }

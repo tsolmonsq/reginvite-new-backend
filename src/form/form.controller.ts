@@ -82,4 +82,26 @@ export class FormController {
   ) {
     return this.formService.getRsvpGuestResponses(eventId, Number(page), Number(limit));
   }
+
+  @Get('public/:eventId/registrations-count')
+  @ApiOperation({ summary: 'Get the number of registrations for the public form' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully fetched the number of registrations',
+    schema: {
+      type: 'object',
+      properties: {
+        registrationsCount: {
+          type: 'string', // Updated to be a string
+          description: 'String representation of the number of registrations with the max count',
+        },
+      },
+    },
+  })
+  async getPublicFormRegistrationsCount(
+    @Param('eventId') eventId: number
+  ): Promise<{ registrationsCount: string }> {
+    const count = await this.formService.getPublicFormRegistrationsCount(eventId);
+    return { registrationsCount: count };
+  }
 }
