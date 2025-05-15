@@ -30,14 +30,13 @@ import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }), 
     // Serve static files
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'), 
       serveRoot: '/uploads',                      
     }),
-
-    ConfigModule.forRoot(),
-
+    
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
