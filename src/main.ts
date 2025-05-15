@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,12 +24,15 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);  // Swagger UI will be available at /api
+  SwaggerModule.setup('api', app, document);  
 
   app.enableCors({
     origin: 'http://localhost:3000',
     credentials: true,
   });
+
+  //Зураг upload хийх. 
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
   await app.listen("3002");
 }

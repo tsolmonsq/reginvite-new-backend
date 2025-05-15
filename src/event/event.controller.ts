@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Put, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Put, Delete, Req, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { EventService } from './event.service';
 import { Event } from './event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -8,6 +8,9 @@ import { EventCategory } from './event-category.enum';
 import { PaginationDto } from 'src/common/ dto/pagination.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserService } from 'src/user/user.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @ApiTags('Event')
 @Controller('events')
@@ -17,7 +20,6 @@ export class EventController {
     private readonly userService: UserService
   ) {}
   
-
   @Post()
   @UseGuards(JwtAuthGuard)
   async createEvent(@Body() createEventDto: CreateEventDto, @Req() req: any) {
@@ -89,5 +91,22 @@ export class EventController {
   @ApiResponse({ status: 404, description: 'Event not found' })
   async deleteEvent(@Param('id') id: number): Promise<void> {
     return this.eventService.deleteEvent(id);
+  }
+
+  @Post('uploads/event-image')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads/event-images',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+      },
+    }),
+  }))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return {
+      image_path: `/uploads/event-images/${file.filename}`,
+    };
   }
 }
