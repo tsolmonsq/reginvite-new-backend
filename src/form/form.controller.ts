@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, Patch, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Query, ParseIntPipe } from '@nestjs/common';
 import { FormService } from './form.service';
 import { Form } from './form.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { SubmitPublicFormDto } from './ dto/submit-public-form.dto';
 import { UpdateFormSettingsDto } from './ dto/update-form-settings.dto';
+import { UpdateFormFieldDto } from 'src/form-field/dto/update-form-field.dto';
 
 @ApiTags('Form') 
 @Controller('forms')
@@ -103,5 +104,13 @@ export class FormController {
   ): Promise<{ registrationsCount: string }> {
     const count = await this.formService.getPublicFormRegistrationsCount(eventId);
     return { registrationsCount: count };
+  }
+
+  @Patch('/form-fields/:eventId')
+  async addNewFieldsToPublicForm(
+    @Param('eventId', ParseIntPipe) eventId: number,
+    @Body() fields: UpdateFormFieldDto[],
+  ) {
+    return this.formService.appendNewFields(eventId, fields);
   }
 }

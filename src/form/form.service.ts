@@ -9,6 +9,7 @@ import { FormField } from 'src/form-field/form-field.entity';
 import { Response } from 'src/response/response.entity';
 import { PaginationDto } from 'src/common/ dto/pagination.dto';
 import { UpdateFormSettingsDto } from './ dto/update-form-settings.dto';
+import { UpdateFormFieldDto } from 'src/form-field/dto/update-form-field.dto';
 
 @Injectable()
 export class FormService {
@@ -21,6 +22,9 @@ export class FormService {
 
     @InjectRepository(Guest)
     private readonly guestRepository: Repository<Guest>,
+
+    @InjectRepository(FormField)
+    private readonly formFieldRepository: Repository<FormField>,
   ) {}
 
   findAll(): Promise<Form[]> {
@@ -303,5 +307,39 @@ export class FormService {
     const maxGuests = form.max_guests;
   
     return `${registrationsCount} / ${maxGuests}`;
+  }
+
+  async appendNewFields(eventId: number, fields: UpdateFormFieldDto[]) {
+    const form = await this.formRepository.findOne({
+      where: { event: { id: eventId } },
+      relations: ['formFields'],
+    });
+  
+    if (!form) throw new NotFoundException('Form not found');
+  
+    // Аль хэдийн орсон талбаруудын label-ууд
+    const existingLabels = form.formFields.map(f => f.label);
+  
+    // Зөвхөн шинээр нэмэгдэхүүд
+    const newFields = fields
+      .filter(f => !existingLabels.includes(f.label))
+      .map(f =>
+        this.formFieldRepository.create({
+          form,
+          label: f.label,
+          type: f.type,
+          is_required: f.is_required,
+          options: f.options || '',
+        }),
+      );
+  
+    if (newFields.length > 0) {
+      await this.formFieldRepository.save(newFields);
+    }
+  
+    return {
+      message: `${newFields.length} шинэ талбар нэмэгдлээ.`,
+      addedLabels: newFields.map(f => f.label),
+    };
   }
 }

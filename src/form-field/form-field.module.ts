@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FormFieldService } from './form-field.service';
 import { FormFieldController } from './form-field.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +8,10 @@ import { FormModule } from 'src/form/form.module';
 import { Response } from 'src/response/response.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FormField, Form, Response]), FormModule],
+  imports: [
+    TypeOrmModule.forFeature([FormField, Form, Response]), 
+    forwardRef(() => FormModule)
+  ],
   providers: [FormFieldService],
   controllers: [FormFieldController],
 })
