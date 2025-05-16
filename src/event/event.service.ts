@@ -36,6 +36,7 @@ export class EventService {
     try {
       const event = this.eventRepository.create({
         ...createEventDto,
+        is_public: false,
         user: { id: userId }, 
       });
   
