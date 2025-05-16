@@ -26,7 +26,6 @@ import { Template } from './template/template.entity';
 import { Invitation } from './invitation/invitation.entity';
 import { Event } from './event/event.entity';
 import { Response } from './response/response.entity';
-import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
@@ -64,9 +63,9 @@ import { MailService } from './mail/mail.service';
     ResponseModule,
     GuestModule,
     TemplateModule,
-    InvitationModule,
+    InvitationModule
   ],
   controllers: [AppController],
-  providers: [AppService, MailService],
+  providers: [AppService],
 })
 export class AppModule {}

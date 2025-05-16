@@ -7,6 +7,7 @@ import { CreateGuestDto } from './dto/create-guest.dto';
 import { Express } from 'express';
 import { PaginationDto } from 'src/common/ dto/pagination.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import { SendInviteDto } from './dto/send-invite.dto';
 
 @ApiTags('Guest')  
 @Controller('guests')
@@ -82,5 +83,14 @@ export class GuestController {
   @ApiOperation({ summary: 'Check in guest by QR token' })
   async checkInGuest(@Param('token') token: string): Promise<Guest> {
     return this.guestService.checkInByQrToken(token);
+  }
+
+  @Post('send-invites')
+  @ApiResponse({ status: 201, description: 'Илгээх амжилттай' })
+  async sendInvites(@Body() dto: SendInviteDto) {
+    console.log('DTO:', dto);
+    console.log('guestIds type:', typeof dto.guestIds);
+    console.log('Array.isArray:', Array.isArray(dto.guestIds));
+    return this.guestService.sendInvitations(dto.guestIds, dto.invitationId);
   }
 }
